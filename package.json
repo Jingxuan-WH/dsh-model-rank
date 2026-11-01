@@ -1,6 +1,6 @@
 {
   "name": "dsh-model-rank",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Sidebar LLM leaderboard for DeepSeek Harness (DSH): LMArena blind-test ratings, intelligence index, LiveBench 2.0 capability, OpenRouter usage & share, price/speed — plus a local token-usage dashboard. Daily snapshot, instant open, highlights the models you have. | DSH 侧栏「模型排行」：多榜合一 + 本机模型高亮 + 本机用量仪表盘（含能力榜），打开即显示。",
   "keywords": [
     "deepseek",

@@ -239,6 +239,7 @@ function renderPanel(tab) {
 const panelHtml = renderPanel('arena');
 const panelLocal = renderPanel('local');
 const panelLivebench = renderPanel('livebench');
+const panelShare = renderPanel('share');
 
 // 空态：bundled 快照（livebench=null + livebench-data 标记 runtime-fetch-only + lastSuccessMs=null）
 // 验证：能力榜空态文案 / 状态条「待联网更新」措辞 / 页头「内置快照 · 等待联网更新」
@@ -306,6 +307,11 @@ const checks = [
   ['能力榜 tab', panelHtml.includes('能力榜')],
   ['OpenRouter 周 tab', panelHtml.includes('OpenRouter 周')],
   ['市场份额 tab', panelHtml.includes('市场份额')],
+  // v0.2.0 回归：市场份额行必须同时保留布局类 .mrr-share 与可点击类 .mrr-row-clickable
+  // （rowOpenProps 的 className 曾覆盖基础类，导致行退化为块级堆叠、份额条消失）
+  ['市场份额行保留布局类（mrr-share + mrr-row-clickable 并存）', panelShare.includes('mrr-share mrr-row-clickable')],
+  ['市场份额行含份额条与数值', panelShare.includes('mrr-sharebar') && panelShare.includes('mrr-shareval')],
+  ['市场份额行不再退化为纯块级（无裸 mrr-share 行）', !panelShare.includes('class="mrr-share"')],
   ['本机接入 tab', panelHtml.includes('本机接入')],
   ['仅看已接入 chip', panelHtml.includes('仅看已接入')],
   ['数据源状态条', panelHtml.includes('mrr-srcbar') && panelHtml.includes('LMArena')],
