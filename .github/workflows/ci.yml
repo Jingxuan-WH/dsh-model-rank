@@ -1,0 +1,97 @@
+# dsh-model-rank · 轻量 CI（不联网、不装依赖、无本机路径）
+# 目标：给 README 一个稳定的绿徽章，并在 PR 上挡住语法错误 / manifest 与截图路径断裂。
+# 刻意不做的事：不 npm install（仓库唯一依赖 yaml 不参与此检查）、不抓取数据源、不跑需要
+# 本机绝对路径的 validate-host/client（那两处硬编码路径在维护者本机）。
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-manifest:
+    name: syntax + manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax check (lib + scripts)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in lib/*.js scripts/*.mjs; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: Manifest self-check (offline)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import { readFileSync, existsSync } from 'node:fs';
+
+          const fail = (msg) => { console.error('FAIL: ' + msg); process.exit(1); };
+          // 容忍 BOM：Windows 工具（PowerShell Set-Content 等）很容易给 JSON 加上 BOM，
+          // 而 GitHub 上第三方市场/其他工具用 JSON.parse 读取时会被 BOM 卡住。
+          const readJson = (file) => JSON.parse(readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+
+          // package.json：可解析，且 dsh.bundle / dsh.client 声明完整
+          const pkg = readJson('package.json');
+          if (pkg.name !== 'dsh-model-rank') fail('package.json name 不是 dsh-model-rank');
+          if (!pkg.dsh?.bundle?.patch) fail('package.json 缺少 dsh.bundle.patch（awesome 会因此拒收）');
+          if (!existsSync(pkg.dsh.bundle.patch)) fail('dsh.bundle.patch 指向的文件不存在: ' + pkg.dsh.bundle.patch);
+          if (pkg.dsh?.client?.platform !== 'web') fail('package.json 缺少 dsh.client.platform=web');
+          if (pkg.main !== 'lib/index.js') fail('package.json main 应为 lib/index.js');
+          if (!pkg.exports?.['.']) fail('package.json exports["."] 缺失');
+
+          // cordis.patch.yml：结构自检（不引入 yaml 依赖，只查必需行）
+          const patch = readFileSync(pkg.dsh.bundle.patch, 'utf8');
+          if (!/^-?\s*insert:\s*$/m.test(patch)) fail('cordis.patch.yml 缺少 insert: 层');
+          if (!/^\s*-\s*id:\s*model-rank\s*$/m.test(patch)) fail('cordis.patch.yml 缺少 id: model-rank 行');
+          if (!/^\s*name:\s*['"]dsh-model-rank['"]\s*$/m.test(patch)) fail('cordis.patch.yml name 应指向包名 dsh-model-rank');
+
+          // screenshots.json：合法 JSON + 每个路径真实存在（大小写敏感，Linux 上会暴露路径错误）
+          if (existsSync('screenshots.json')) {
+            const shots = readJson('screenshots.json');
+            const list = Array.isArray(shots) ? shots : shots.screenshots;
+            if (!Array.isArray(list) || list.length < 1) fail('screenshots.json 应为非空数组或 {screenshots:[...]}');
+            if (list.length > 8) fail('screenshots.json 最多 8 张（awesome 市场限制）');
+            for (const p of list) {
+              if (typeof p !== 'string' || /^https?:/i.test(p)) fail('screenshots.json 只允许仓库内相对路径: ' + p);
+              if (!existsSync(p)) fail('screenshots.json 指向的文件不存在: ' + p);
+            }
+          }
+
+          // 内置兜底快照：可解析、version=1，且不得含本机清单 / local 标记（隐私红线）
+          const snap = readJson('data/snapshot.json');
+          if (snap.version !== 1) fail('data/snapshot.json version 应为 1');
+          if (snap.userModelsCount) fail('data/snapshot.json 含本机模型数量（应净化）');
+          if (Array.isArray(snap.userProviders) && snap.userProviders.filter(Boolean).length > 0) {
+            fail('data/snapshot.json 含本机 provider 清单（应净化）');
+          }
+          if (snap.usedDefaultModel) fail('data/snapshot.json 含 usedDefaultModel（应净化）');
+          if (snap.aa && Array.isArray(snap.aa.models) && snap.aa.models.length > 0) {
+            fail('data/snapshot.json 含 Artificial Analysis 数据（应净化，AA 仅允许运行时抓取）');
+          }
+          const raw = readFileSync('data/snapshot.json', 'utf8');
+          if (/"local"\s*:\s*true/.test(raw)) fail('data/snapshot.json 含 local 标记（应净化）');
+
+          console.log('manifest self-check: OK');
+          EOF
+
+      - name: Summary
+        if: success()
+        run: echo "语法与 manifest/快照隐私自检通过，无需安装任何依赖。"

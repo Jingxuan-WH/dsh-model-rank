@@ -1,0 +1,7 @@
+# dsh-model-rank bundle patch: mounts the plugin into a profile layer stack.
+# The row id is the key users may override in their profile's cordis.patch.yml; the row
+# name is the module this package exports, so it must stay the package name.
+# Keep the two different (see dsh-bottom-info-bar's patch for the same reasoning).
+- insert:
+    - id: model-rank
+      name: 'dsh-model-rank'

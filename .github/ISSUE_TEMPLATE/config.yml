@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 使用问题 / 讨论
+    url: https://github.com/Jingxuan-WH/dsh-model-rank/discussions
+    about: 安装求助、配置疑问、使用场景交流请走 Discussions；可复现的 bug 请用 Issue 模板。
+  - name: DSH 插件精选列表
+    url: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin
+    about: 想看更多 DSH 插件可以逛这个列表。

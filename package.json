@@ -1,0 +1,69 @@
+{
+  "name": "dsh-model-rank",
+  "version": "0.2.0",
+  "description": "Sidebar LLM leaderboard for DeepSeek Harness (DSH): LMArena blind-test ratings, intelligence index, LiveBench 2.0 capability, OpenRouter usage & share, price/speed — plus a local token-usage dashboard. Daily snapshot, instant open, highlights the models you have. | DSH 侧栏「模型排行」：多榜合一 + 本机模型高亮 + 本机用量仪表盘（含能力榜），打开即显示。",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "dsh-plugins",
+    "dsh-market",
+    "llm",
+    "leaderboard",
+    "llm-leaderboard",
+    "ranking",
+    "lmarena",
+    "livebench",
+    "model-comparison",
+    "artificial-analysis",
+    "openrouter",
+    "ai-benchmark",
+    "benchmark",
+    "token-usage",
+    "usage-tracking"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jingxuan-WH/dsh-model-rank.git"
+  },
+  "homepage": "https://github.com/Jingxuan-WH/dsh-model-rank#readme",
+  "bugs": {
+    "url": "https://github.com/Jingxuan-WH/dsh-model-rank/issues"
+  },
+  "author": "Jingxuan-WH",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./pipeline": "./lib/pipeline.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "data/snapshot.json",
+    "cordis.patch.yml",
+    "docs",
+    "screenshots.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "engines": {
+    "node": ">=22.15.0"
+  }
+}
