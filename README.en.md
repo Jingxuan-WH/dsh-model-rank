@@ -91,7 +91,9 @@ actually run, and where your tokens go.
   - **per-model usage ranking** with share bars, plus the intelligence index and OpenRouter weekly
     position when a match exists;
   - **provider split + 14-day token trend**;
-  - **provider cards**: one card per configured provider, with its models and their positions;
+  - **Bounded lists**: 10 usage rows per page; provider cards preview 8 models, with reversible expansion and pages of up to 50 models. Long lists no longer stretch neighbouring sections.
+  - **Local search**: searches both usage and inventory, including models beyond the preview. The input stays available with zero results; each tab retains its own query. Inventory is visible even without session usage.
+  - **provider cards**: one card per configured provider, with matched leaderboard positions below;
   - **account balance / plan windows**: shown when a local `dsh-usage` snapshot exists (read-only,
     optional; hidden otherwise).
 - **Basis**: the aggregation covers **every session log the host can read** — including sessions that

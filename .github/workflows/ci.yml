@@ -1,7 +1,4 @@
-# dsh-model-rank · 轻量 CI（不联网、不装依赖、无本机路径）
-# 目标：给 README 一个稳定的绿徽章，并在 PR 上挡住语法错误 / manifest 与截图路径断裂。
-# 刻意不做的事：不 npm install（仓库唯一依赖 yaml 不参与此检查）、不抓取数据源、不跑需要
-# 本机绝对路径的 validate-host/client（那两处硬编码路径在维护者本机）。
+# Offline fixtures and real React state regression tests; never fetch leaderboard sources.
 
 name: CI
 
@@ -25,7 +22,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+          cache: npm
+
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Offline regression tests
+        run: npm test
 
       - name: Syntax check (lib + scripts)
         shell: bash
@@ -94,4 +98,4 @@ jobs:
 
       - name: Summary
         if: success()
-        run: echo "语法与 manifest/快照隐私自检通过，无需安装任何依赖。"
+        run: echo "离线交互回归、语法、manifest 与快照隐私自检通过。"

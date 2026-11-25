@@ -10,7 +10,8 @@
 // 说明：bundled data/snapshot.json 是「净化版」（无 AA / 无本机清单 / 无 local），
 //       所以本脚本在内存里注入 demo 假数据 fixture（demo-1/demo-2 + Demo Model A–D），
 //       既验证净化版能渲染，也验证有 local 时「已接入」徽标与能力榜 tab 正常。
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -290,7 +291,7 @@ const panelWriteError = renderPanelCustom('arena', snapshot, usageFixture, write
 console.log('\nicon html:', iconHtml.slice(0, 220), '...');
 console.log('panel bytes:', { arena: panelHtml.length, local: panelLocal.length, livebench: panelLivebench.length, livebenchEmpty: panelLivebenchEmpty.length });
 // 输出物写到临时目录，避免污染工作区与仓库
-const outDir = process.env.TEMP || packageRoot;
+const outDir = mkdtempSync(join(tmpdir(), 'dsh-model-rank-validation-'));
 writeFileSync(join(outDir, 'dsh-model-rank-panel.html'), panelHtml, 'utf8');
 writeFileSync(join(outDir, 'dsh-model-rank-panel-local.html'), panelLocal, 'utf8');
 writeFileSync(join(outDir, 'dsh-model-rank-panel-livebench.html'), panelLivebench, 'utf8');
