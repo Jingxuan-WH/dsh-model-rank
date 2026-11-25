@@ -332,7 +332,7 @@ const checks = [
   ['用量 KPI sparkline', panelLocal.includes('mrr-usage-spark') && panelLocal.includes('<polyline')],
   ['用量费用估算 + 覆盖度文案', panelLocal.includes('估算') && panelLocal.includes('覆盖')],
   ['我的模型用量排行', panelLocal.includes('我的模型用量排行')],
-  ['provider 分布', panelLocal.includes('provider 用量分布')],
+  ['provider 分布', panelLocal.includes('渠道用量分布')],
   ['近 14 天趋势 SVG', panelLocal.includes('近 14 天趋势') && panelLocal.includes('<svg')],
   ['账户余额 / 套餐窗口', panelLocal.includes('账户余额 / 套餐窗口')],
   ['账户凭据三态文案', panelLocal.includes('无凭据')],
