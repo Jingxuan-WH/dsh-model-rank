@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/local.png" alt="dsh-model-rank local usage dashboard: token totals for today/last 7 days/last 30 days/all time, model usage ranking, provider split and 14-day trend" width="920">
+  <img src="docs/local.png" alt="dsh-model-rank local dashboard demo: a compact preview of a 500-model provider above the usage overview and charts" width="920">
 </p>
 
 <h1 align="center">dsh-model-rank</h1>
@@ -91,7 +91,7 @@ actually run, and where your tokens go.
   - **per-model usage ranking** with share bars, plus the intelligence index and OpenRouter weekly
     position when a match exists;
   - **provider split + 14-day token trend**;
-  - **provider cards**: one card per configured provider, with its models and their positions;
+  - **connected models**: preview three models per provider, expand to browse twelve per page, or search all names, IDs and providers. Clearing the search restores your place in the directory. Expand the ranking positions to see public leaderboard matches;
   - **account balance / plan windows**: shown when a local `dsh-usage` snapshot exists (read-only,
     optional; hidden otherwise).
 - **Basis**: the aggregation covers **every session log the host can read** — including sessions that

@@ -69,9 +69,9 @@ function fakeRes() {
   return res;
 }
 
-async function call(route, url, method = 'GET') {
+async function call(route, url, method = 'GET', peer) {
   const res = fakeRes();
-  await route.handler({ url, method }, res);
+  await route.handler({ url, method }, res, peer);
   let body = null;
   try { body = res.body ? JSON.parse(res.body) : null } catch { /* 保留原始 body */ }
   return { res, body };
@@ -189,6 +189,7 @@ try {
   const effects = [];
   let rejection = undefined; // 由用例切换：undefined=放行 / 401 / 403
 
+  const testConnection = { requestRejection: () => rejection };
   function fakeCtx() {
     return {
       logger: { info: (m) => logs.push(String(m)) },
@@ -198,7 +199,7 @@ try {
         return fn({
           logger: { info: (m) => logs.push('[nested] ' + String(m)) },
           effect(fn2, label2) { effects.push(label2); return fn2(); },
-          connection: { requestRejection: () => rejection },
+          connection: testConnection,
           webServer: {
             register(route) { routes.push(route); return () => {}; },
             registerUpgrade() { return () => {}; },
@@ -224,6 +225,17 @@ try {
   const rejected = await call(route, '/_dsh/dsh-model-rank/snapshot');
   check(rejected.res.statusCode === 403, 'Host/Origin 不可信请求 → 403（P2-03：保留 rejection 码）');
   rejection = undefined;
+
+  const legacyGate = testConnection.requestRejection;
+  delete testConnection.requestRejection;
+  check(route.auth === 'required', '新宿主路由要求认证');
+  const endpoint = '/_dsh/dsh-model-rank/status';
+  const peer = new AbortController();
+  check((await call(route, endpoint, 'GET', { signal: peer.signal })).res.statusCode === 200, '新宿主已认证连接可读取状态');
+  peer.abort();
+  check((await call(route, endpoint, 'GET', { signal: peer.signal })).res.statusCode === 401, '已断开的连接被拒绝');
+  check((await call(route, endpoint)).res.statusCode === 401, '旧校验和认证连接均不存在时拒绝请求');
+  testConnection.requestRejection = legacyGate;
 
   // ---------- P2-01：RPC 路由/方法语义 ----------
   const rootCall = await call(route, '/_dsh/dsh-model-rank');
